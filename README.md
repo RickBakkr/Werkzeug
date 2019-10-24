@@ -17,4 +17,4 @@ Dependancies:
 Authors:
 -------
 
-    Copyright (c) 2019-present, Rick Bakker <mail@rickbakker.eu>
+Copyright (c) 2019-present, Rick Bakker <mail@rickbakker.eu>
