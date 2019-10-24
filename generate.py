@@ -76,8 +76,8 @@ def procedure(version):
     tmpCfg = tmpCfg.replace('|IMPORT_LIMIT|', limitIn)
 
     password = ""
-    if(peer['password'] is not None):
-        password = peer['password']
+    if password in peer.keys():
+        password = "password \"" + peer['password'] + "\";"
 
     tmpCfg = tmpCfg.replace('|MD5_PASSWORD|', password)
 
