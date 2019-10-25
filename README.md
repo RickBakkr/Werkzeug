@@ -20,6 +20,9 @@ Options:
                             Your Autonomous Systen Number
       -c FILE, --config=FILE
                             Path to router specific peering configuration YAML file
+      -o DIRECTORY, --output=DIRECTORY
+                            Directory to write the output files to 
+                            - MAKE SURE IT IS EXISTANT! We do not create the directory! 
       --dry-run             Does not write generated configs, just outputs to screen
       
 The name:
