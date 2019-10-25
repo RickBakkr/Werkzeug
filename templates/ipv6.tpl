@@ -6,4 +6,6 @@ protocol bgp |NAME| {
         export |EXPORT_POLICY|;
     };
     graceful restart on;
+    |IMPORT_LIMIT|
+    |EXPORT_LIMIT|
 }

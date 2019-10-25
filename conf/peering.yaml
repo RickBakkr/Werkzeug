@@ -1,0 +1,41 @@
+---
+- as: 24940
+  name: Hetzner Online GmbH
+  ipv4:
+    address: 185.1.95.73
+    import:
+      type: irr
+      irr: AS-HETZNER
+      limit: 500
+    export:
+      type: filter
+      name: RickNetV4
+  ipv6:
+    address: 2001:7f8:b7::a502:4940:1
+    import:
+      type: irr
+      irr: AS-HETZNER
+      limit: 100
+    export:
+      type: filter
+      name: RickNetV6
+- as: 209152
+  name: Initq Limited
+  ipv4:
+    address: 193.189.82.65
+    import:
+      type: irr
+      irr: AS-INITQ
+      limit: 50
+    export:
+      type: filter
+      name: RickNetV4
+  ipv6:
+    address: 2001:7f8:33::a120:9152:1
+    import:
+      type: irr
+      irr: AS-INITQ
+      limit: 50
+    export:
+      type: filter
+      name: RickNetV6

@@ -8,4 +8,5 @@ protocol bgp |NAME| {
     graceful restart on;
     |MD5_PASSWORD|
     |IMPORT_LIMIT|
+    |EXPORT_LIMIT|
 }

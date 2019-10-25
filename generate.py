@@ -1,4 +1,5 @@
-import json
+from optparse import OptionParser
+import yaml
 import random
 import string
 import subprocess
@@ -23,7 +24,7 @@ def procedure(version):
     else:
         counter.update({name: counter.get(name) + 1})
     # Apply variables
-    tmpCfg = tmpCfg.replace('|MYAS|', "204526")
+    tmpCfg = tmpCfg.replace('|MYAS|', myas)
     tmpCfg = tmpCfg.replace('|ORG|', peer['name'])
     tmpCfg = tmpCfg.replace('|NAME|', get_id(name))
     tmpCfg = tmpCfg.replace('|NEIGHBOR_AS|', asn)
@@ -68,20 +69,30 @@ def procedure(version):
     if peer[index]['export']['type'] == 'ANY':
         outFilter = "all"
 
-    # limitIn = "import limit 5 action restart;"
     limitIn = ""
+    limitOut = ""
+    if "limit" in peer[index]['import'].keys():
+        print("Set import limit")
+        limitIn = "import limit " + str(peer[index]['import']['limit']) + " action restart;"
+    if "limit" in peer[index]['export'].keys():
+        print("Set export limit")
+        limitOut = "export limit " + str(peer[index]['export']['limit']) + " action restart;"
+
     tmpCfg = tmpCfg.replace('|IMPORT_POLICY|', inFilter)
     tmpCfg = tmpCfg.replace('|EXPORT_POLICY|', outFilter)
 
     tmpCfg = tmpCfg.replace('|IMPORT_LIMIT|', limitIn)
+    tmpCfg = tmpCfg.replace('|EXPORT_LIMIT|', limitOut)
 
     password = ""
     if password in peer.keys():
+        print("Setting MD5 password")
         password = "password \"" + peer['password'] + "\";"
 
     tmpCfg = tmpCfg.replace('|MD5_PASSWORD|', password)
 
     # Generated, append to our config
+    print("Append to config")
     sessions += tmpCfg + "\n\n\n"
 
 def get_id(name):
@@ -91,8 +102,33 @@ def get_id(name):
 def get_uuid():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(5)]).upper()
 
+peeringFile = "conf/peering.yaml"
+
 dryRun = False
 
+parser = OptionParser()
+parser.add_option("-a", "--as-number", dest="myas",
+                  help="Your Autonomous Systen Number")
+parser.add_option("-c", "--config", dest="peeringFile",
+                  help="Path to router specific peering configuration YAML file", metavar="FILE", default=peeringFile)
+parser.add_option('--dry-run', default=False, action='store_true', dest="dryRun", help="Does not write generated configs, just outputs to screen")
+(options, args) = parser.parse_args()
+
+if not options.myas:   # if filename is not given
+    parser.error('You have not provided us with any ASN. Use -a 65000 or --as-number 65000')
+
+myas = options.myas
+peeringFile = options.peeringFile
+dryRun = options.dryRun
+
+print("-------- [ WERKZEUG by Rick Bakker ] --------")
+print("Environment:")
+print("ASN: " + str(myas))
+print("Configuration file: " + str(peeringFile))
+if(dryRun):
+    print("RUNNING IN DRY-RUN MODE - WILL OUTPUT CONFIG HERE, NOT WRITE TO OUTPUT DIR.")
+
+print("")
 with open("templates/ipv4.tpl", "r") as file:
     template_ipv4 = file.read()
 
@@ -102,9 +138,9 @@ with open("templates/ipv6.tpl", "r") as file:
 with open("templates/filter.tpl", "r") as file:
     template_filter = file.read()
 
-with open("conf/peering.json", "r") as file:
+with open(peeringFile, "r") as file:
     raw = file.read()
-    data = json.loads(raw)
+    data = yaml.safe_load(raw)
 
 counter = {}
 
@@ -115,12 +151,19 @@ for peer in data:
 
     print('--- Generating session/filters for AS' + str(peer['as']) + ' (' + peer['name'] + ') ---')
     if peer['ipv4'] is not None:
+        print("Setting up IPv4 session")
         procedure(4)
 
     if peer['ipv6'] is not None:
+        print("Setting up IPv6 session")
         procedure(6)
 
-if dryRun is not True:
+if dryRun:
+    print("SESSIONS:")
+    print(sessions)
+    print("FILTERS:")
+    print(filters)
+else:
     with open("out/sessions.conf", "w") as myfile:
         myfile.write(sessions)
     with open("out/filters.conf", "w") as myfile:

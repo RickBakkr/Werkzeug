@@ -1,3 +1,4 @@
 out/*
-conf/peering.json
+conf/peering.yaml
 stubs/*
+.idea/*
