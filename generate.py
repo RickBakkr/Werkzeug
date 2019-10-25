@@ -1,4 +1,6 @@
 from optparse import OptionParser
+from pathlib import Path
+
 import yaml
 import random
 import string
@@ -103,14 +105,16 @@ def get_uuid():
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(5)]).upper()
 
 peeringFile = "conf/peering.yaml"
-
+outDirectory = "out/"
 dryRun = False
 
 parser = OptionParser()
 parser.add_option("-a", "--as-number", dest="myas",
-                  help="Your Autonomous Systen Number")
+                  help="Your Autonomous Systen Number", metavar="ASN")
 parser.add_option("-c", "--config", dest="peeringFile",
                   help="Path to router specific peering configuration YAML file", metavar="FILE", default=peeringFile)
+parser.add_option("-o", "--output", dest="outDirectory",
+                  help="Directory we can write the output files to", metavar="DIRECTORY", default=outDirectory)
 parser.add_option('--dry-run', default=False, action='store_true', dest="dryRun", help="Does not write generated configs, just outputs to screen")
 (options, args) = parser.parse_args()
 
@@ -120,11 +124,14 @@ if not options.myas:   # if filename is not given
 myas = options.myas
 peeringFile = options.peeringFile
 dryRun = options.dryRun
+p = Path(options.outDirectory)
+outDirectory = f'{p}/'
 
 print("-------- [ WERKZEUG by Rick Bakker ] --------")
 print("Environment:")
 print("ASN: " + str(myas))
 print("Configuration file: " + str(peeringFile))
+print("Output directory: " + str(outDirectory))
 if(dryRun):
     print("RUNNING IN DRY-RUN MODE - WILL OUTPUT CONFIG HERE, NOT WRITE TO OUTPUT DIR.")
 
@@ -164,7 +171,11 @@ if dryRun:
     print("FILTERS:")
     print(filters)
 else:
-    with open("out/sessions.conf", "w") as myfile:
+    path = outDirectory + "sessions.conf"
+    with open(path, "w") as myfile:
+        print("Write sessions to " + path)
         myfile.write(sessions)
-    with open("out/filters.conf", "w") as myfile:
+    path = outDirectory + "filters.conf"
+    with open(path, "w") as myfile:
+        print("Write filters to " + path)
         myfile.write(filters)
