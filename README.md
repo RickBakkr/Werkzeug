@@ -29,7 +29,7 @@ The name:
 ------
 Fairly rudimentary, Werkzeug is the German word for "Tool". While not the most creative, I somehow felt it really appropriate and surely will get the job done.
 
-Dependancies:
+Dependencies:
 -------------
 
     bgpq3  - https://github.com/snar/bgpq3
